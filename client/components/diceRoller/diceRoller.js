@@ -6,6 +6,7 @@ angular.module('webglDiceRoller')
 				restrict: 'E',
 				link: function (scope, elem) {
 					var camera;
+					var scene;
 					var controls;
 					var uniforms;
 					var renderer;
@@ -17,7 +18,7 @@ angular.module('webglDiceRoller')
 					var mouse = new THREE.Vector2(0, 0);
 					var mouseDownPos = new THREE.Vector2();
 
-					//init the window.scene
+					//init the scene
 					init();
 					animate();
 
@@ -45,7 +46,8 @@ angular.module('webglDiceRoller')
 
 						camera.lookAt(0,0, 0);
 
-						window.scene = new THREE.Scene();
+						console.log('physijs: ', Physijs);
+						scene = new Physijs.Scene;
 
 						raycaster = new THREE.Raycaster();
 						renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -55,15 +57,23 @@ angular.module('webglDiceRoller')
 						elem[0].appendChild(renderer.domElement);
 
             var ambient = new THREE.AmbientLight( 0xffffff );
-            window.scene.add( ambient );
+            scene.add( ambient );
             // var directionalLight = new THREE.DirectionalLight( 0xffeedd );
             // directionalLight.position.set( 0, 0, 1 );
-            // window.scene.add( directionalLight );
+            // scene.add( directionalLight );
 
-            loader.load("assets/models/dice.json",function ( obj ) {
-                console.log('adding obj: ', obj);
-                 window.scene.add( obj );
-            });
+            // loader.load("assets/models/dice.json",function ( obj ) {
+						// 		var sixSidedDie = obj.children[0]
+            //     console.log('adding obj: ', sixSidedDie);
+            //      scene.add( obj.children[0] );
+            // });
+
+						let box = new Physijs.BoxMesh(
+		            new THREE.CubeGeometry( 5, 5, 5 ),
+		            new THREE.MeshBasicMaterial({ color: 0x888888 })
+		        );
+						console.log('box: ', box);
+		        scene.add( box );
 
 						// Events
 						window.addEventListener('resize',  onWindowResize, false);
@@ -87,6 +97,7 @@ angular.module('webglDiceRoller')
 
 					function animate(time) {
 							controls.update();
+        		scene.simulate(); // run physics
 						requestAnimationFrame(animate);
 						// TWEEN.update(time);
 						render();
@@ -95,7 +106,7 @@ angular.module('webglDiceRoller')
 					function render() {
             // console.log(controls.position0)
 						// renderer.render(backgroundScene , backgroundCamera )
-						renderer.render(window.scene, camera);
+						renderer.render(scene, camera);
 					}
 				}
 			};

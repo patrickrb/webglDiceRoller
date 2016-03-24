@@ -22,8 +22,9 @@
     "angular-bootstrap": "~1.1.0",
     "bootswatch": "3.3.6+1",
     "angular-gravatar": "~0.4.1",
-    "three.js": "threejs#*",
-    "animate.css": "~3.5.1"
+    "three.js": "threejs#r73",
+    "animate.css": "~3.5.1",
+    "Physijs": "physijs#*"
   },
   "devDependencies": {
     "angular-mocks": "~1.5.0"

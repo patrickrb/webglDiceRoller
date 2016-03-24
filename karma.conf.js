@@ -38,6 +38,8 @@ module.exports = function(config) {
       'client/bower_components/angular-bootstrap/ui-bootstrap-tpls.js',
       'client/bower_components/angular-gravatar/build/angular-gravatar.js',
       'client/bower_components/three.js/build/three.js',
+      'client/bower_components/Physijs/physi.js',
+      'client/bower_components/Physijs/physijs_worker.js',
       'client/bower_components/angular-mocks/angular-mocks.js',
       // endbower
       'node_modules/socket.io-client/socket.io.js',
