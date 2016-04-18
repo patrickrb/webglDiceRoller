@@ -1,19 +1,16 @@
 'use strict';
 
 angular.module('webglDiceRoller')
-	.directive('diceRoller',function ($q, $rootScope) {
+	.directive('diceRoller',function () {
 			return {
 				restrict: 'E',
 				link: function (scope, elem) {
 					var camera;
 					var scene;
 					var controls;
-					var uniforms;
 					var renderer;
 					var clock = new THREE.Clock();
-					var particleSystem;
 					var raycaster;
-					var geometry;
           var loader = new THREE.ObjectLoader();
 					var mouse = new THREE.Vector2(0, 0);
 					var mouseDownPos = new THREE.Vector2();
@@ -47,7 +44,7 @@ angular.module('webglDiceRoller')
 						camera.lookAt(0,0, 0);
 
 						console.log('physijs: ', Physijs);
-						scene = new Physijs.Scene;
+						scene = new Physijs.Scene();
 
 						raycaster = new THREE.Raycaster();
 						renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -62,32 +59,31 @@ angular.module('webglDiceRoller')
             // directionalLight.position.set( 0, 0, 1 );
             // scene.add( directionalLight );
 
-            // loader.load("assets/models/dice.json",function ( obj ) {
-						// 		var sixSidedDie = obj.children[0]
-            //     console.log('adding obj: ', sixSidedDie);
-            //      scene.add( obj.children[0] );
-            // });
+            loader.load('assets/models/dice.json',function ( obj ) {
+								var sixSidedDie = obj.children[0];
+                console.log('adding obj: ', sixSidedDie);
 
-						let box = new Physijs.BoxMesh(
-		            new THREE.CubeGeometry( 5, 5, 5 ),
-		            new THREE.MeshBasicMaterial({ color: 0x888888 })
-		        );
-						console.log('box: ', box);
-		        scene.add( box );
+								let box = new Physijs.BoxMesh(
+				            new THREE.CubeGeometry( 0.2, 0.2, 0.2 ),
+				            new THREE.MeshBasicMaterial({ color: 0x888888 })
+				        );
+
+								box.add(sixSidedDie);
+                scene.add( box );
+            });
 
 						// Events
 						window.addEventListener('resize',  onWindowResize, false);
-						elem[0].addEventListener('mousemove',  function (event) {}, false);
-						elem[0].addEventListener('mousedown', function(event) {
+						elem[0].addEventListener('mousemove',  function () {}, false);
+						elem[0].addEventListener('mousedown', function() {
 							mouseDownPos = new THREE.Vector2(event.pageX, event.pageY);
 						});
-						elem[0].addEventListener('mouseup', function (event) {});
-
+						elem[0].addEventListener('mouseup', function () {});
             addControls();
 					}
 
 					//
-					function onWindowResize(event) {
+					function onWindowResize() {
 						renderer.setSize(window.innerWidth, window.innerHeight);
 						camera.aspect = window.innerWidth / window.innerHeight;
 						camera.updateProjectionMatrix();
