@@ -17,6 +17,8 @@
   "trailing": true,
   "smarttabs": true,
   "globals": {
+    "THREE": true,
+    "Physijs": true,
     "jQuery": true,
     "angular": true,
     "console": true,
