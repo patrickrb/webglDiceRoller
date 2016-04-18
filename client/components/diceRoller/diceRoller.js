@@ -58,6 +58,23 @@ angular.module('webglDiceRoller')
             // var directionalLight = new THREE.DirectionalLight( 0xffeedd );
             // directionalLight.position.set( 0, 0, 1 );
             // scene.add( directionalLight );
+						let woodTexture = THREE.ImageUtils.loadTexture( '/assets/textures/wood_texture.jpg' );
+						let woodMaterial = Physijs.createMaterial(
+							new THREE.MeshLambertMaterial({ map: woodTexture }),
+							0.8, // high friction
+							0.3 // low restitution
+						);
+
+						let ground = new Physijs.BoxMesh(
+							new THREE.BoxGeometry(100, 1, 100),
+							woodMaterial,
+							0 // mass
+						);
+
+						ground.position.set(0, -2, 0 )
+						ground.receiveShadow = true;
+						scene.add( ground );
+
 
             loader.load('assets/models/dice.json',function ( obj ) {
 								var sixSidedDie = obj.children[0];
@@ -69,6 +86,7 @@ angular.module('webglDiceRoller')
 				        );
 
 								box.add(sixSidedDie);
+
                 scene.add( box );
             });
 
