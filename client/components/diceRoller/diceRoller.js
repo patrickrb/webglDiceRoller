@@ -40,6 +40,7 @@ angular.module('webglDiceRoller')
 					}
 
 					function rollDie(){
+						console.log(box);
 						var effect = new THREE.Vector3(0,0.01,0);
 						var offset = mousePosition.clone().sub( box.position );
 						box.applyImpulse(effect, offset);
@@ -89,6 +90,7 @@ angular.module('webglDiceRoller')
             loader.load('assets/models/dice.json',function ( obj ) {
 								sixSidedDie = obj.children[0];
                 console.log('adding obj: ', sixSidedDie);
+								sixSidedDie.castShadow = true;
 
 								box = new Physijs.BoxMesh(
 				            new THREE.CubeGeometry( 0.22, 0.22, 0.22 ),
@@ -96,8 +98,6 @@ angular.module('webglDiceRoller')
 				        );
 
  								box.scale.set( 4, 4, 4 );
-								box.receiveShadow = true;
-								box.castShadow = true;
 								box.add(sixSidedDie);
                 scene.add( box );
 								camera.lookAt(box);
