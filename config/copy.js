@@ -9,7 +9,7 @@ module.exports = {
       cwd: '<%= yeoman.client %>',
       dest: '<%= yeoman.dist %>/client',
       src: [
-        '*.{ico,png,txt}',
+        '*.{ico,png,txt,js}',
         '.htaccess',
         'bower_components/**/*',
         'assets/**/*',
