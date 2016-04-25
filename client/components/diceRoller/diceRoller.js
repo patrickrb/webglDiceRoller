@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('webglDiceRoller')
-	.directive('diceRoller',function () {
+	.directive('diceRoller',function (utilsService) {
 			return {
 				restrict: 'E',
 				link: function (scope, elem) {
@@ -9,8 +9,12 @@ angular.module('webglDiceRoller')
 					var scene;
 					var controls;
 					var box;
+					var isRolling = false;
+					var currentRoll = 4;
 					var sixSidedDie;
 					var renderer;
+					var min = 0;
+					var max = 15;
 					var strength = 35
 					var clock = new THREE.Clock();
 					var raycaster;
@@ -35,15 +39,13 @@ angular.module('webglDiceRoller')
 
 						controls.keys = [ 65, 83, 68 ];
 						controls.minDistance = 1.5;
-
-            console.log('controls: ', controls);
 					}
 
 					function rollDie(){
-						console.log(box);
 						var effect = new THREE.Vector3(0,0.01,0);
-						var offset = mousePosition.clone().sub( box.position );
+						var offset = new THREE.Vector3(utilsService.randNum(min, max), utilsService.randNum(min, max),utilsService.randNum(min, max));
 						box.applyImpulse(effect, offset);
+						isRolling = true;
 					}
 
 					function init() {
@@ -52,7 +54,6 @@ angular.module('webglDiceRoller')
 
 						camera.lookAt(0,0, 0);
 
-						console.log('physijs: ', Physijs);
 						scene = new Physijs.Scene();
 
 						raycaster = new THREE.Raycaster();
@@ -66,7 +67,7 @@ angular.module('webglDiceRoller')
             // scene.add( ambient );
 
             var directionalLight = new THREE.DirectionalLight( 0xffeedd );
-            directionalLight.position.set( 0, 10, 10 );
+            directionalLight.position.set( 0, 1, 1 );
             scene.add( directionalLight );
 
 						let woodTexture = THREE.ImageUtils.loadTexture( '/assets/textures/wood_texture.jpg' );
@@ -82,14 +83,65 @@ angular.module('webglDiceRoller')
 							0 // mass
 						);
 
-						ground.position.set(0, -2, 0 );
+						let wall = new Physijs.BoxMesh(
+							new THREE.BoxGeometry(50, 50, 1),
+							woodMaterial,
+							0 // mass
+						);
+
+						let wall2 = new Physijs.BoxMesh(
+							new THREE.BoxGeometry(50, 50, 1),
+							woodMaterial,
+							0 // mass
+						);
+
+
+						let wall3 = new Physijs.BoxMesh(
+							new THREE.BoxGeometry(1, 50, 50),
+							woodMaterial,
+							0 // mass
+						);
+
+						let wall4 = new Physijs.BoxMesh(
+							new THREE.BoxGeometry(1, 50, 50),
+							woodMaterial,
+							0 // mass
+						);
+
+
+						let ceiling = new Physijs.BoxMesh(
+							new THREE.BoxGeometry(50, 1, 50),
+							woodMaterial,
+							0 // mass
+						);
+
+
+						wall.position.set(0, 21, -25 );
+						wall2.position.set(0,21, 25);
+						wall3.position.set(25,21, 0);
+						wall4.position.set(-25,21, 0);
+						ceiling.position.set(0,45, 0);
+
+						wall.visible = false;
+						wall2.visible = false;
+						wall3.visible = false;
+						wall4.visible = false;
+						ceiling.visible = false;
+
+						scene.add(wall);
+						scene.add(wall2);
+						scene.add(wall3);
+						scene.add(wall4);
+						scene.add(ceiling);
+
+
+						ground.position.set(0, -0.5, 0 );
 						ground.receiveShadow = true;
 						scene.add( ground );
 
 
             loader.load('assets/models/dice.json',function ( obj ) {
 								sixSidedDie = obj.children[0];
-                console.log('adding obj: ', sixSidedDie);
 								sixSidedDie.castShadow = true;
 
 								box = new Physijs.BoxMesh(
@@ -97,32 +149,43 @@ angular.module('webglDiceRoller')
 				            new THREE.MeshBasicMaterial({ color: 0x888888 })
 				        );
 
+								var dir = new THREE.Vector3( 0, 1, 0 );
+								var origin = new THREE.Vector3( 0, 0, 0 );
+								var length = 1;
+								var hex = 0xffff00;
+
+								var arrowHelper = new THREE.ArrowHelper( dir, origin, length, hex );
+
  								box.scale.set( 4, 4, 4 );
 								box.add(sixSidedDie);
+								box.add(arrowHelper);
                 scene.add( box );
+								console.log(box);
 								camera.lookAt(box);
             });
 
-						function setMousePosition( evt ) {
-							// Find where mouse cursor intersects the ground plane
-							var vector = new THREE.Vector3(
-								( evt.clientX / renderer.domElement.clientWidth ) * 2 - 1,
-								-( ( evt.clientY / renderer.domElement.clientHeight ) * 2 - 1 ),
-								.5
-							);
-							vector.unproject( camera );
-							vector.sub( camera.position ).normalize();
-
-							var coefficient = (box.position.y - camera.position.y) / vector.y
-							mousePosition = camera.position.clone().add( vector.multiplyScalar( coefficient ) );
-						};
+						// function setMousePosition( evt ) {
+						// 	if(!box)
+						// 		return false;
+						// 	// Find where mouse cursor intersects the ground plane
+						// 	var vector = new THREE.Vector3(
+						// 		( evt.clientX / renderer.domElement.clientWidth ) * 2 - 1,
+						// 		-( ( evt.clientY / renderer.domElement.clientHeight ) * 2 - 1 ),
+						// 		.5
+						// 	);
+						// 	vector.unproject( camera );
+						// 	vector.sub( camera.position ).normalize();
+						//
+						// 	var coefficient = (box.position.y - camera.position.y) / vector.y
+						// 	mousePosition = camera.position.clone().add( vector.multiplyScalar( coefficient ) );
+						// };
 
 						// Events
 						window.addEventListener('resize',  onWindowResize, false);
-						elem[0].addEventListener('mousemove',  setMousePosition, false);
+						// elem[0].addEventListener('mousemove',  setMousePosition, false);
 						elem[0].addEventListener('mousedown', function() {
 							// mouseDownPos = new THREE.Vector2(event.pageX, event.pageY);
-							rollDie();
+							if(!isRolling){ rollDie() }
 						});
 						elem[0].addEventListener('mouseup', function () {});
             addControls();
@@ -139,14 +202,30 @@ angular.module('webglDiceRoller')
 
 					function animate(time) {
 						requestAnimationFrame(animate);
+						if(isRolling)
+							if((box._physijs.linearVelocity.x === 0) && (box._physijs.linearVelocity.y === 0) && (box._physijs.linearVelocity.z === 0)){
+								var matrix = new THREE.Matrix4();
+								matrix.extractRotation( sixSidedDie.matrixWorld );
+								var direction = new THREE.Vector3( 0, 1, 0 );
+								direction = matrix.multiplyVector3( direction );
+								console.log(matrix);
+								isRolling = false;
+								currentRoll = 4;
+							}
+							else{
+								console.log('is moving');
+								isRolling = true;
+							}
 						controls.update();
         		scene.simulate(); // run physics
-						// TWEEN.update(time);
 						render();
 					}
 
 					function render() {
-            // console.log(controls.position0)
+						if(box){
+							camera.lookAt(box.position);
+							controls.target.set(box.position.x, box.position.y, box.position.z);
+						}
 						// renderer.render(backgroundScene , backgroundCamera )
 						renderer.render(scene, camera);
 					}
