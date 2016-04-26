@@ -13,17 +13,7 @@
           </div>
           <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-            </ul>
-            <ul class="nav navbar-nav navbar-right"  ng-if="isLoggedIn">
-                <li><img gravatar-src-once="user.email"></li>
-                <li class="dropdown">
-                  <a uib-dropdown-toggle class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{user.name}}<span class="caret"></span></a>
-                  <ul uib-dropdown-menu class="dropdown-menu">
-                    <li ng-click="logout()"><a href="">Logout</a></li>
-                  </ul>
-                </li>
-            </ul>
-            <ul class="nav navbar-nav navbar-right" ng-if="!isLoggedIn">
+              <li><a href="https://github.com/patrickrb/webglDiceRoller" target="_blank"><i class="fa fa-github"></i> View Source</a></li>
             </ul>
           </div><!--/.nav-collapse -->
         </div><!--/.container-fluid -->

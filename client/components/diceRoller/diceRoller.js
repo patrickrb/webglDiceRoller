@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('webglDiceRoller')
-	.directive('diceRoller',function (utilsService) {
+	.directive('diceRoller',function (utilsService, $timeout) {
 			return {
 				restrict: 'E',
 				link: function (scope, elem) {
@@ -10,18 +10,14 @@ angular.module('webglDiceRoller')
 					var controls;
 					var box;
 					var isRolling = false;
-					var currentRoll = 4;
 					var sixSidedDie;
 					var renderer;
 					var min = 0;
 					var max = 15;
-					var strength = 35
-					var clock = new THREE.Clock();
+					var strength = 35;
 					var raycaster;
-					var mousePosition = new THREE.Vector2(0,0);
+					var numRolled;
           var loader = new THREE.ObjectLoader();
-					var mouse = new THREE.Vector2(0, 0);
-					var mouseDownPos = new THREE.Vector2();
 
 					//init the scene
 					init();
@@ -42,10 +38,12 @@ angular.module('webglDiceRoller')
 					}
 
 					function rollDie(){
-						var effect = new THREE.Vector3(0,0.01,0);
+						var effect = new THREE.Vector3(0,2.01,0);
 						var offset = new THREE.Vector3(utilsService.randNum(min, max), utilsService.randNum(min, max),utilsService.randNum(min, max));
 						box.applyImpulse(effect, offset);
-						isRolling = true;
+						setTimeout(function(){
+							isRolling = true;
+						}, 100);
 					}
 
 					function init() {
@@ -146,46 +144,23 @@ angular.module('webglDiceRoller')
 
 								box = new Physijs.BoxMesh(
 				            new THREE.CubeGeometry( 0.22, 0.22, 0.22 ),
-				            new THREE.MeshBasicMaterial({ color: 0x888888 })
+				            new THREE.MeshBasicMaterial(),
+										2
 				        );
-
-								var dir = new THREE.Vector3( 0, 1, 0 );
-								var origin = new THREE.Vector3( 0, 0, 0 );
-								var length = 1;
-								var hex = 0xffff00;
-
-								var arrowHelper = new THREE.ArrowHelper( dir, origin, length, hex );
 
  								box.scale.set( 4, 4, 4 );
 								box.add(sixSidedDie);
-								box.add(arrowHelper);
                 scene.add( box );
-								console.log(box);
 								camera.lookAt(box);
             });
 
-						// function setMousePosition( evt ) {
-						// 	if(!box)
-						// 		return false;
-						// 	// Find where mouse cursor intersects the ground plane
-						// 	var vector = new THREE.Vector3(
-						// 		( evt.clientX / renderer.domElement.clientWidth ) * 2 - 1,
-						// 		-( ( evt.clientY / renderer.domElement.clientHeight ) * 2 - 1 ),
-						// 		.5
-						// 	);
-						// 	vector.unproject( camera );
-						// 	vector.sub( camera.position ).normalize();
-						//
-						// 	var coefficient = (box.position.y - camera.position.y) / vector.y
-						// 	mousePosition = camera.position.clone().add( vector.multiplyScalar( coefficient ) );
-						// };
 
 						// Events
 						window.addEventListener('resize',  onWindowResize, false);
 						// elem[0].addEventListener('mousemove',  setMousePosition, false);
 						elem[0].addEventListener('mousedown', function() {
 							// mouseDownPos = new THREE.Vector2(event.pageX, event.pageY);
-							if(!isRolling){ rollDie() }
+							if(!isRolling){ rollDie(); }
 						});
 						elem[0].addEventListener('mouseup', function () {});
             addControls();
@@ -202,20 +177,39 @@ angular.module('webglDiceRoller')
 
 					function animate(time) {
 						requestAnimationFrame(animate);
-						if(isRolling)
+						if(isRolling){
 							if((box._physijs.linearVelocity.x === 0) && (box._physijs.linearVelocity.y === 0) && (box._physijs.linearVelocity.z === 0)){
-								var matrix = new THREE.Matrix4();
-								matrix.extractRotation( sixSidedDie.matrixWorld );
-								var direction = new THREE.Vector3( 0, 1, 0 );
-								direction = matrix.multiplyVector3( direction );
-								console.log(matrix);
+								raycaster.set(box.position, new THREE.Vector3(0,1,0));
+								var collisions = raycaster.intersectObjects(sixSidedDie.children);
+								var faceIndex = collisions[0].faceIndex;
+								switch (faceIndex) {
+								    case 835:
+											numRolled = 6;
+											break;
+								    case 40:
+											numRolled = 5;
+											break;
+								    case 1653:
+											numRolled = 4;
+											break;
+								    case 1640:
+											numRolled = 4;
+											break;
+								    case 103:
+											numRolled = 3;
+											break;
+								    case 1315:
+											numRolled = 2;
+											break;
+								    case 7:
+											numRolled = 1;
+											break;
+								}
+
+								console.log('you rolled a: ', numRolled);
 								isRolling = false;
-								currentRoll = 4;
 							}
-							else{
-								console.log('is moving');
-								isRolling = true;
-							}
+						}
 						controls.update();
         		scene.simulate(); // run physics
 						render();
