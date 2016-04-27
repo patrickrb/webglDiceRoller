@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('webglDiceRoller')
-	.directive('diceRoller',function ($rootScope, utilsService) {
+	.directive('diceRoller',function ($rootScope, controlsService, utilsService) {
 			return {
 				restrict: 'E',
 				link: function (scope, elem) {
@@ -26,18 +26,7 @@ angular.module('webglDiceRoller')
 						if(!isRolling){ rollDie(); }
 					});
 
-					function addControls(){
-						controls = new THREE.OrbitControls( camera, elem[0].childNodes[0] );
-						controls.rotateSpeed = 0.3;
-						controls.zoomSpeed = 2.2;
-						controls.panSpeed = 2;
 
-						controls.enableDamping = true;
-						controls.dampingFactor = 0.3;
-
-						controls.keys = [ 65, 83, 68 ];
-						controls.minDistance = 2.5;
-					}
 
 					function rollDie(){
 						var effect = new THREE.Vector3(0,2.01,0);
@@ -164,7 +153,7 @@ angular.module('webglDiceRoller')
 
 						// Events
 						window.addEventListener('resize',  onWindowResize, false);
-            addControls();
+            controlsService.addControls(camera, elem[0].childNodes[0]);
 					}
 
 					//
@@ -183,7 +172,6 @@ angular.module('webglDiceRoller')
 								raycaster.set(box.position, new THREE.Vector3(0,1,0));
 								var collisions = raycaster.intersectObjects(sixSidedDie.children);
 								var faceIndex = collisions[0].faceIndex;
-								console.log('faceIndex: ', faceIndex);
 								switch (faceIndex) {
 								    case 835:
 											numRolled = 6;
@@ -210,12 +198,13 @@ angular.module('webglDiceRoller')
 											numRolled = 1;
 											break;
 								}
-
-								console.log('you rolled a: ', numRolled);
+								$rootScope.$apply(() => {
+									$rootScope.$broadcast('roll-results', numRolled);
+								});
 								isRolling = false;
 							}
 						}
-						controls.update();
+					  controlsService.getControls().update();
         		scene.simulate(); // run physics
 						render();
 					}
@@ -223,7 +212,7 @@ angular.module('webglDiceRoller')
 					function render() {
 						if(box){
 							camera.lookAt(box.position);
-							controls.target.set(box.position.x, box.position.y, box.position.z);
+							controlsService.setTarget(box.position.x, box.position.y, box.position.z);
 						}
 						// renderer.render(backgroundScene , backgroundCamera )
 						renderer.render(scene, camera);
