@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('webglDiceRoller')
-	.directive('diceRoller',function (utilsService, $timeout) {
+	.directive('diceRoller',function ($rootScope, utilsService) {
 			return {
 				restrict: 'E',
 				link: function (scope, elem) {
@@ -14,7 +14,6 @@ angular.module('webglDiceRoller')
 					var renderer;
 					var min = 0;
 					var max = 15;
-					var strength = 35;
 					var raycaster;
 					var numRolled;
           var loader = new THREE.ObjectLoader();
@@ -23,6 +22,9 @@ angular.module('webglDiceRoller')
 					init();
 					animate();
 
+					$rootScope.$on('roll-dice', function(){
+						if(!isRolling){ rollDie(); }
+					});
 
 					function addControls(){
 						controls = new THREE.OrbitControls( camera, elem[0].childNodes[0] );
@@ -34,7 +36,7 @@ angular.module('webglDiceRoller')
 						controls.dampingFactor = 0.3;
 
 						controls.keys = [ 65, 83, 68 ];
-						controls.minDistance = 1.5;
+						controls.minDistance = 2.5;
 					}
 
 					function rollDie(){
@@ -141,11 +143,16 @@ angular.module('webglDiceRoller')
             loader.load('assets/models/dice.json',function ( obj ) {
 								sixSidedDie = obj.children[0];
 								sixSidedDie.castShadow = true;
+								var material = Physijs.createMaterial(
+								    new THREE.MeshBasicMaterial(),
+								    0.9999,  //friction
+								    0.9      //restituion
+								);
 
 								box = new Physijs.BoxMesh(
 				            new THREE.CubeGeometry( 0.22, 0.22, 0.22 ),
-				            new THREE.MeshBasicMaterial(),
-										2
+				            material,
+										2    //mass
 				        );
 
  								box.scale.set( 4, 4, 4 );
@@ -157,12 +164,6 @@ angular.module('webglDiceRoller')
 
 						// Events
 						window.addEventListener('resize',  onWindowResize, false);
-						// elem[0].addEventListener('mousemove',  setMousePosition, false);
-						elem[0].addEventListener('mousedown', function() {
-							// mouseDownPos = new THREE.Vector2(event.pageX, event.pageY);
-							if(!isRolling){ rollDie(); }
-						});
-						elem[0].addEventListener('mouseup', function () {});
             addControls();
 					}
 
@@ -182,6 +183,7 @@ angular.module('webglDiceRoller')
 								raycaster.set(box.position, new THREE.Vector3(0,1,0));
 								var collisions = raycaster.intersectObjects(sixSidedDie.children);
 								var faceIndex = collisions[0].faceIndex;
+								console.log('faceIndex: ', faceIndex);
 								switch (faceIndex) {
 								    case 835:
 											numRolled = 6;
@@ -199,6 +201,9 @@ angular.module('webglDiceRoller')
 											numRolled = 3;
 											break;
 								    case 1315:
+											numRolled = 2;
+											break;
+								    case 1266:
 											numRolled = 2;
 											break;
 								    case 7:
