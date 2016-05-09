@@ -168,40 +168,40 @@ angular.module('webglDiceRoller')
 					function animate(time) {
 						requestAnimationFrame(animate);
 						if(isRolling){
+							raycaster.set(box.position, new THREE.Vector3(0,1,0));
+							var collisions = raycaster.intersectObjects(sixSidedDie.children);
+							var faceIndex = collisions[0].faceIndex;
+							switch (faceIndex) {
+									case 835:
+										numRolled = 6;
+										break;
+									case 40:
+										numRolled = 5;
+										break;
+									case 1653:
+										numRolled = 4;
+										break;
+									case 1640:
+										numRolled = 4;
+										break;
+									case 103:
+										numRolled = 3;
+										break;
+									case 1315:
+										numRolled = 2;
+										break;
+									case 1266:
+										numRolled = 2;
+										break;
+									case 7:
+										numRolled = 1;
+										break;
+							}
+							$rootScope.$apply(() => {
+								$rootScope.$broadcast('roll-results', numRolled);
+							});
 							if((box._physijs.linearVelocity.x === 0) && (box._physijs.linearVelocity.y === 0) && (box._physijs.linearVelocity.z === 0)){
-								raycaster.set(box.position, new THREE.Vector3(0,1,0));
-								var collisions = raycaster.intersectObjects(sixSidedDie.children);
-								var faceIndex = collisions[0].faceIndex;
-								switch (faceIndex) {
-								    case 835:
-											numRolled = 6;
-											break;
-								    case 40:
-											numRolled = 5;
-											break;
-								    case 1653:
-											numRolled = 4;
-											break;
-								    case 1640:
-											numRolled = 4;
-											break;
-								    case 103:
-											numRolled = 3;
-											break;
-								    case 1315:
-											numRolled = 2;
-											break;
-								    case 1266:
-											numRolled = 2;
-											break;
-								    case 7:
-											numRolled = 1;
-											break;
-								}
-								$rootScope.$apply(() => {
-									$rootScope.$broadcast('roll-results', numRolled);
-								});
-								isRolling = false;
+																isRolling = false;
 							}
 						}
 					  controlsService.getControls().update();
