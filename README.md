@@ -1,5 +1,6 @@
 Built with [Angular][1] and [Three.js][2]
 
+[Click Here](http://dice.burnsforce.com/) for a preview
 ## Getting Started
 
 ### Prerequisites
