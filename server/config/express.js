@@ -10,16 +10,9 @@ import morgan from 'morgan';
 import compression from 'compression';
 import bodyParser from 'body-parser';
 import methodOverride from 'method-override';
-import cookieParser from 'cookie-parser';
 import errorHandler from 'errorhandler';
 import path from 'path';
-import lusca from 'lusca';
 import config from './environment';
-import passport from 'passport';
-import session from 'express-session';
-import connectMongo from 'connect-mongo';
-import mongoose from 'mongoose';
-var mongoStore = connectMongo(session);
 
 module.exports = function(app) {
   var env = app.get('env');
@@ -31,15 +24,6 @@ module.exports = function(app) {
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.json());
   app.use(methodOverride());
-  app.use(cookieParser());
-  app.use(passport.initialize());
-
-  /**
-   * Lusca - express server security
-   * https://github.com/krakenjs/lusca
-   */
-  if ('test' !== env) {
-  }
 
   app.set('appPath', path.join(config.root, 'client'));
 
@@ -47,10 +31,6 @@ module.exports = function(app) {
     app.use(favicon(path.join(config.root, 'client', 'favicon.ico')));
     app.use(express.static(app.get('appPath')));
     app.use(morgan('dev'));
-  }
-
-  if ('development' === env) {
-    app.use(require('connect-livereload')());
   }
 
   if ('development' === env || 'test' === env) {

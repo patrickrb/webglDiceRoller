@@ -5,7 +5,6 @@
 'use strict';
 
 import express from 'express';
-import mongoose from 'mongoose';
 import config from './config/environment';
 import http from 'http';
 
@@ -13,11 +12,6 @@ import http from 'http';
 // Setup server
 var app = express();
 var server = http.createServer(app);
-var socketio = require('socket.io')(server, {
-  serveClient: config.env !== 'production',
-  path: '/socket.io-client'
-});
-require('./config/socketio')(socketio);
 require('./config/express')(app);
 require('./routes')(app);
 
