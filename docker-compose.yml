@@ -1,0 +1,7 @@
+version: '3'
+services:
+  diceRoller:
+    build: .
+    image: registry.gitlab.com/patrickrb/webgldiceroller
+    ports:
+      - "9000:9000"
